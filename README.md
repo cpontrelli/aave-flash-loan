@@ -1,12 +1,18 @@
 # Sample Hardhat Project
 
-# Set up .env file
+# Set up Environment
+Contents of .env file
 ```
-PRIVATE_KEY=your-private-key
-ALCHEMY_API_KEY=your-alchemy-key
+ALCHEMY_API_KEY=your-goerli-alchemy-key
 ```
 
-# Fork goerli testnet
+Install dependencies and compile contract
 ```
-yarn hardhat node
+yarn install
+harn hardhat compile
+```
+
+# Run Lending Script
+```
+yarn run ts-node --files ./scripts/Lend.ts
 ```
