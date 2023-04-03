@@ -29,3 +29,8 @@ The flash loan sets up a leveraged lending position by loaning 200 USDC,
 lending the USDC on the user's behalf, and borrowing 100 USDC on the user's 
 behalf to pay off half of the loan. 100 USDC must be supplied
 by the user to repay the flash loan.
+
+After this leveraged position is entered, a separate series of transactions
+is initiated to exit the leveraged position. A new flash loan is created to repay
+the AAVE loan. To repay the flash loan, some aUSDC is transferred from the user
+to the smart contract and withdrawn from the lending pool.
