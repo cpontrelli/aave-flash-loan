@@ -5,7 +5,7 @@ dotenv.config();
 
 const config: HardhatUserConfig = {
   paths: { tests: "tests" },
-  solidity: "0.8.17",
+  solidity: "0.8.10",
   networks: {
     hardhat: {
       forking: {

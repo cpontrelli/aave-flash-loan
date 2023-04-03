@@ -10,3 +10,10 @@ ALCHEMY_API_KEY=your-alchemy-key
 ```
 yarn hardhat node
 ```
+# run script
+
+```
+yarn run ts-node --files ./scripts/deploy.ts
+
+yarn run ts-node --files ./scripts/fleshLoan.ts
+```
