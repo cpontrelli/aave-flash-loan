@@ -6,6 +6,8 @@ const USDC_ADDRESS = '0x65aFADD39029741B3b8f0756952C74678c9cEC93';
 const AUSDC_ADDRESS = '0x8Be59D90A7Dc679C5cE5a7963cD1082dAB499918';
 const USDC_VARIABLE_DEBT = '0x4DAe67e69aCed5ca8f99018246e6476F82eBF9ab';
 const IMPERSONATE_ADDRESS = '0xBA549d2730210AD373f9A29Ae918D3Bc7550C480';
+const FL_LEVERAGE_ADDRESS = '0x129Ca7ff8C681ee4640904e7fa1b09Bb584542Ac';
+const FL_EXIT_CONTRACT = '0x5a4a5690b427DB7514D4588a0193D3f3f421BE43';
 const LOAN_AMOUNT = ethers.utils.parseUnits('200', 6);
 const BORROW_AMOUNT = ethers.utils.parseUnits('100', 6);
 
@@ -16,16 +18,13 @@ async function main() {
     const USDCContract = Token__factory.connect(USDC_ADDRESS, impersonatedSigner);
     const aUSDCContract = Token__factory.connect(AUSDC_ADDRESS, impersonatedSigner);
     const USDCDebtContract = ICreditDelegationToken__factory.connect(USDC_VARIABLE_DEBT, impersonatedSigner);
+    const flashLoanLeverageContract = FlashLoanLeverage__factory.connect(FL_LEVERAGE_ADDRESS, impersonatedSigner);
+    const flashLoanExitContract = FlashLoanExit__factory.connect(FL_EXIT_CONTRACT, impersonatedSigner);
 
     console.log("Pulling user account data...");
     let accountData = await poolContract.getUserAccountData(impersonatedSigner.address);
     console.log(`Total Collateral Base: ${accountData.totalCollateralBase}`);
     console.log(`Total Available Borrow Base: ${accountData.availableBorrowsBase}`);
-    
-    console.log("Deploying the loan contract...");
-    const flashLoanLeverageContractFactory = new FlashLoanLeverage__factory(impersonatedSigner);
-    const flashLoanLeverageContract = await flashLoanLeverageContractFactory.deploy(POOL_ADDRESS);
-    await flashLoanLeverageContract.deployed();
 
     console.log("Approving the loan contract to withdraw USDC...");
     const approveLoanTx = await USDCContract.approve(flashLoanLeverageContract.address, LOAN_AMOUNT);
@@ -47,11 +46,6 @@ async function main() {
 
     let aUSCDBalance = await aUSDCContract.balanceOf(impersonatedSigner.address);
     console.log(`aUSDCBalance: ${aUSCDBalance}`);
-
-    console.log("Deploying the loan exit contract...");
-    const flashLoanExitContractFactory = new FlashLoanExit__factory(impersonatedSigner);
-    const flashLoanExitContract = await flashLoanExitContractFactory.deploy(POOL_ADDRESS);
-    await flashLoanExitContract.deployed();
 
     console.log("Approving the exit contract to withdraw aUSDC...");
     //need to approve more than loan amount to pay for AAVE flash loan fee
