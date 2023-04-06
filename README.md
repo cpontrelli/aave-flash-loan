@@ -28,7 +28,7 @@ pre-funded account to perform a flash loan using AAVE v3.
 The flash loan sets up a leveraged lending position by flash loaning
 100 USDC, transferring 100 USDC from the user, and lending the total
 200 USDC on the user's behalf. It then borrows 100 USDC on this collateral 
-to pay off half of the flash loan.
+to pay off the flash loan.
 
 After this leveraged position is entered, a separate series of transactions
 is initiated to exit the leveraged position. A new flash loan is created to repay
