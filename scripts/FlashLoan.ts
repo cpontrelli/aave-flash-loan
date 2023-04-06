@@ -6,10 +6,10 @@ const USDC_ADDRESS = '0x65aFADD39029741B3b8f0756952C74678c9cEC93';
 const AUSDC_ADDRESS = '0x8Be59D90A7Dc679C5cE5a7963cD1082dAB499918';
 const USDC_VARIABLE_DEBT = '0x4DAe67e69aCed5ca8f99018246e6476F82eBF9ab';
 const IMPERSONATE_ADDRESS = '0xBA549d2730210AD373f9A29Ae918D3Bc7550C480';
-const FL_LEVERAGE_ADDRESS = '0x129Ca7ff8C681ee4640904e7fa1b09Bb584542Ac';
+const FL_LEVERAGE_ADDRESS = '0xe2E3F88200C6e63A14dad0E6596bbED426b74B56';
 const FL_EXIT_CONTRACT = '0x5a4a5690b427DB7514D4588a0193D3f3f421BE43';
 const LOAN_AMOUNT = ethers.utils.parseUnits('200', 6);
-const BORROW_AMOUNT = ethers.utils.parseUnits('100', 6);
+const SUPPLIED_AMOUNT = ethers.utils.parseUnits('100', 6);
 
 async function main() {
     
@@ -27,15 +27,15 @@ async function main() {
     console.log(`Total Available Borrow Base: ${accountData.availableBorrowsBase}`);
 
     console.log("Approving the loan contract to withdraw USDC...");
-    const approveLoanTx = await USDCContract.approve(flashLoanLeverageContract.address, LOAN_AMOUNT);
+    const approveLoanTx = await USDCContract.approve(flashLoanLeverageContract.address, SUPPLIED_AMOUNT);
     approveLoanTx.wait();
 
     console.log("Approving debt delegation to allow loan contract to make borrow...")
-    const debtTx = await USDCDebtContract.approveDelegation(flashLoanLeverageContract.address, BORROW_AMOUNT);
+    const debtTx = await USDCDebtContract.approveDelegation(flashLoanLeverageContract.address, LOAN_AMOUNT);
     await debtTx.wait();
 
     console.log("Attempting flash loan...");
-    const flashTx = await flashLoanLeverageContract.flashLoanLeverage(impersonatedSigner.address, USDC_ADDRESS, LOAN_AMOUNT, BORROW_AMOUNT);
+    const flashTx = await flashLoanLeverageContract.flashLoanLeverage(impersonatedSigner.address, USDC_ADDRESS, LOAN_AMOUNT, SUPPLIED_AMOUNT);
     flashTx.wait();
     console.log("Completed Flash Loan!");
 
@@ -53,7 +53,7 @@ async function main() {
     approveWithdrawTx.wait();
 
     console.log("Attempting flash exit...");
-    const flashExitTx = await flashLoanExitContract.exitFlashLoan(impersonatedSigner.address, USDC_ADDRESS, AUSDC_ADDRESS, BORROW_AMOUNT);
+    const flashExitTx = await flashLoanExitContract.exitFlashLoan(impersonatedSigner.address, USDC_ADDRESS, AUSDC_ADDRESS, LOAN_AMOUNT.sub(SUPPLIED_AMOUNT));
     flashExitTx.wait();
     console.log("Completed Flash Exit!");
 

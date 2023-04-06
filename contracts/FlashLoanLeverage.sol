@@ -30,14 +30,13 @@ contract FlashLoanLeverage {
         external
         returns (bool)
     {
-        (address user, uint256 borrowAmount) = abi.decode(params, (address, uint256));
+        (address user, uint256 amountSupplied) = abi.decode(params, (address, uint256));
         IERC20 token = IERC20(asset);
 
-        uint amountToLend = amount - premium;
-        token.approve(address(POOL), amountToLend);
-        lend(asset, user, amountToLend);
-        borrow(asset, user, borrowAmount - premium);
-        token.transferFrom(user, address(this), amountToLend);
+        token.approve(address(POOL), amount + amountSupplied);
+        token.transferFrom(user, address(this), amountSupplied);
+        lend(asset, user, amount + amountSupplied);
+        borrow(asset, user, amount + premium);
 
         uint amountOwed = amount + premium;
         token.approve(address(POOL), amountOwed);
@@ -45,16 +44,16 @@ contract FlashLoanLeverage {
         return true;
     }
 
-    function flashLoanLeverage(address user, address token, uint256 lendAmount, uint256 borrowAmount) external {
+    function flashLoanLeverage(address user, address token, uint256 totalToLend, uint256 amountSupplied) external {
         address receiverAddress = address(this);
 
-        bytes memory params = abi.encode(user, borrowAmount);
+        bytes memory params = abi.encode(user, amountSupplied);
         uint16 referralCode = 0;
 
         POOL.flashLoanSimple(
             receiverAddress,
             token,
-            lendAmount,
+            totalToLend - amountSupplied,
             params,
             referralCode
         );
